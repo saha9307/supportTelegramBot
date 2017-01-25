@@ -18,3 +18,4 @@ strInProgress = 'In Progress'
 strToDo = 'To Do'
 
 USER_GET_TASK_INFO = 'USER_GET_TASK_INFO'
+USER_SET_NEW_TASK = 'USER_SET_NEW_TASK'

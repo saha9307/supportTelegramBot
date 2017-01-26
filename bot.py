@@ -1,7 +1,7 @@
 import telebot
 from jira import JIRA
 import constants
-import time
+
 
 jira = JIRA(constants.jiraURL, basic_auth=(constants.jiraUser, constants.jiraPassword))
 
@@ -15,6 +15,10 @@ descriptionNewTask = {}
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, constants.strHello)
+    markup = telebot.types.ReplyKeyboardMarkup()
+    markup.row('/set_new_task', '/get_task_info')
+    markup.row('/help')
+    bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
 
 @bot.message_handler(commands=['help'])
 def handle_text(message):
@@ -35,7 +39,7 @@ def get_task_info(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     try:
         issue = jira.issue(message.text.upper())
-
+        # bot.send_message(message.from_user.id, issue.key)
         status = issue.fields.status.name
         if issue.fields.status.name == constants.strDone:
             status = 'Готово'
@@ -44,16 +48,19 @@ def get_task_info(message):
         elif issue.fields.status.name == constants.strInProgress:
             status = 'В роботі'
 
-        bot.send_message(message.from_user.id, 'Задача: ' + issue.fields.summary +
+        comments = ''
+        for comment in issue.fields.comment.comments:
+            comments += '\n ' + comment.author.displayName + ':\n  ' + comment.body
+
+        bot.send_message(message.from_user.id, 'Задача: ' + issue.fields.description +
                          '\nСтатус: ' + status +
                          '\nІніціатор: ' + issue.fields.creator.displayName +
-                         '\nВиконавець: ' + issue.fields.assignee.displayName)
+                         '\nВиконавець: ' + issue.fields.assignee.displayName+
+                         '\nКоментарі: ' + comments)
     except Exception as err:
         bot.send_message(message.from_user.id, constants.strTaskNotFound);
-        pass
     usersRequestTaskInfo[message.chat.id] = False
 
-#
 # End Set Task Info
 
 
@@ -68,12 +75,11 @@ def handle_text(message):
 def get_task_info(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     # Code for create new task in Jira System
-    new_issue = jira.create_issue(project='SUP', summary='New issue from jira-python',
-                                  description='Look into this one', issuetype={'name': 'Bug'})
-    bot.send_message(message.from_user.id, new_issue.id)
-    time.sleep(2)
-
-
+    summary = message.text + '\nUser: ' + message.from_user.first_name + ' ' + message.from_user.last_name
+    new_issue = jira.create_issue(project='SUP', summary=message.text,
+                                  description=summary, issuetype={'name': 'Bug'}, assignee={'name':'JiraSupport'})
+    bot.send_message(message.from_user.id, new_issue.key)
+    usersCreateTask[message.chat.id] = False
 # End Create new task
 
 

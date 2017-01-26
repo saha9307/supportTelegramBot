@@ -5,10 +5,10 @@ jiraPassword = 'q1w2e3r4_5'
 
 strHello = 'Вас вітає Modern-Expo Support Bot ' + u'\U0001F44B'
 strHelp = '''Функції бота:
-            start - Запустити бота
-            get_task_info - Отримати інформацію по задачі
-            set_new_task - Створити нову задачу
-            help - Допомога'''
+/start - Запустити бота
+/get_task_info - Отримати інформацію по задачі
+/set_new_task - Створити нову задачу
+/help - Допомога'''
 strTaskNotFound = 'Задача із вказаним номером не знайдена'
 strGetTaskInfo = 'Вкажіть номер задачі, для отримання детальної інформації ' + u'\U0001F447'
 strCreateNewTask = 'Опишіть вашу проблему/задачу'

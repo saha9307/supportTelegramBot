@@ -16,7 +16,7 @@ def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, constants.strHello)
     markup = telebot.types.ReplyKeyboardMarkup()
-    markup.row('/set_new_task', '/get_task_info')
+    markup.row('/new_task', '/task_info')
     markup.row('/help')
     bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
 
@@ -28,7 +28,7 @@ def handle_text(message):
 
 # Get task info
 # Start
-@bot.message_handler(commands=['get_task_info'])
+@bot.message_handler(commands=['task_info'])
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     usersRequestTaskInfo[message.chat.id] = constants.USER_GET_TASK_INFO
@@ -39,7 +39,7 @@ def get_task_info(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     try:
         issue = jira.issue(message.text.upper())
-        # bot.send_message(message.from_user.id, issue.key)
+        # #bot.send_message(message.from_user.id, issue.key)
         status = issue.fields.status.name
         if issue.fields.status.name == constants.strDone:
             status = 'Готово'
@@ -65,7 +65,7 @@ def get_task_info(message):
 
 
 # Start Create new task
-@bot.message_handler(commands=['set_new_task'])
+@bot.message_handler(commands=['new_task'])
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     usersCreateTask[message.chat.id] = constants.USER_SET_NEW_TASK

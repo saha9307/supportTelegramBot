@@ -2,7 +2,7 @@ import telebot
 from jira import JIRA
 import constants
 
-
+# test
 jira = JIRA(constants.jiraURL, basic_auth=(constants.jiraUser, constants.jiraPassword))
 
 bot = telebot.TeleBot(constants.telegramBotToken)

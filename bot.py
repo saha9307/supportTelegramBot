@@ -1,8 +1,11 @@
 import telebot
 from jira import JIRA
 import constants
+import pycurl
+import json
 
-# test
+
+
 jira = JIRA(constants.jiraURL, basic_auth=(constants.jiraUser, constants.jiraPassword))
 
 bot = telebot.TeleBot(constants.telegramBotToken)
@@ -26,7 +29,7 @@ def handle_text(message):
     bot.send_message(message.from_user.id, constants.strHelp)
 
 
-# Get task info
+# Get task info ====================================================
 # Start
 @bot.message_handler(commands=['task_info'])
 def handle_text(message):
@@ -61,10 +64,10 @@ def get_task_info(message):
         bot.send_message(message.from_user.id, constants.strTaskNotFound);
     usersRequestTaskInfo[message.chat.id] = False
 
-# End Set Task Info
+# End Set Task Info=================================================
 
 
-# Start Create new task
+# Start Create new task=============================================
 @bot.message_handler(commands=['new_task'])
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
@@ -80,7 +83,7 @@ def get_task_info(message):
                                   description=summary, issuetype={'name': 'Bug'}, assignee={'name':'JiraSupport'})
     bot.send_message(message.from_user.id, new_issue.key)
     usersCreateTask[message.chat.id] = False
-# End Create new task
+# End Create new task===============================================
 
 
 
@@ -88,7 +91,7 @@ def get_task_info(message):
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
-    bot.send_message(message.from_user.id, message.text)
+    bot.send_message(message.from_user.id, message.text+' '+str(type(message.from_user.id)))
 
 
 bot.polling(none_stop=True, interval=0)

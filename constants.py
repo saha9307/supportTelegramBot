@@ -12,6 +12,7 @@ strHelp = '''Функції бота:
 strTaskNotFound = 'Задача із вказаним номером не знайдена'
 strGetTaskInfo = 'Вкажіть номер задачі, для отримання детальної інформації ' + u'\U0001F447'
 strCreateNewTask = 'Опишіть вашу проблему/задачу'
+strRegistrationNewUser = 'Для реєстрації вкажіть, будь ласка, Ваш ІНН ' + u'\U0001F447'
 
 strDone = 'Done'
 strInProgress = 'In Progress'
@@ -19,3 +20,4 @@ strToDo = 'To Do'
 
 USER_GET_TASK_INFO = 'USER_GET_TASK_INFO'
 USER_SET_NEW_TASK = 'USER_SET_NEW_TASK'
+REGISTRATION_NEW_USER = 'REGISTRATION_NEW_USER'

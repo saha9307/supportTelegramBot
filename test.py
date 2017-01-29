@@ -66,7 +66,6 @@
 
 import json
 import requests
-from requests.auth import HTTPDigestAuth
 
 url = 'http://212.1.103.131/BaseCRM/hs/WebModern/GetUserInfo?session=87a95fsfc-063d-482c-8687-6c95733eec9d'
 headers = {'Content-Type': "application/json"}
@@ -79,3 +78,44 @@ print(res.status_code)
 # print(type(res))
 s = json.loads(res.text)
 print(s)
+print(type(s))
+
+# -*- coding: utf-8 -*-
+
+# import _mysql
+# try:
+#     db = _mysql.connect(host="localhost",user="root",
+#                   passwd="q100689",db="ModernExpo")
+# except BaseException as e:
+#     print(str(e))
+#     exit()
+#     # print(str(e))
+#
+# db.set_character_set("utf8")
+# inn = 2949105119
+# db.query("SELECT * FROM UserInfo")
+# r=db.use_result()
+# # print(db.Error)
+# listR = r.fetch_row(0)
+# for s in listR:
+#     print(s)
+#     # print(s[1].decode('utf-8'))\
+
+
+# def userRegistered(userID):
+#     db = _mysql.connect(host="localhost", user="root", passwd="q100689", db="ModernExpo")
+#     db.set_character_set("utf8")
+#     db.query("SELECT * FROM UserInfo WHERE telegram_user_id = " + str(userID))
+#     resultQuery = db.use_result()
+#     userInfo = resultQuery.fetch_row(0)
+#     db.close()
+#     if len(userInfo) > 0:
+#         return True
+#     else:
+#         return False
+#
+# s = userRegistered('123456')
+# print(s)
+
+
+

@@ -90,7 +90,7 @@ def get_user_inn(message):
         bot.send_message(165430624, result)
 
     bot.send_message(message.from_user.id, 'Вітаємо з успішною реєстрацією')
-    markup = telebot.types.ReplyKeyboardMarkup()
+    markup = telebot.types.ReplyKeyboardMarkup(True, False)
     markup.row('/new_task', '/task_info', '/task_list')
     markup.row('/help')
     bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
@@ -112,7 +112,7 @@ def handle_text(message):
         # відправити ще на мене повідомлення про помилку
         bot.send_message(165430624, userRegistered)
     else:
-        markup = telebot.types.ReplyKeyboardMarkup()
+        markup = telebot.types.ReplyKeyboardMarkup(True, False)
         markup.row('/new_task', '/task_info', '/task_list')
         markup.row('/help')
         bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
@@ -211,6 +211,16 @@ def get_task_list(message):
         strTask += '\n' + task[1].decode('utf-8')
 
     bot.send_message(message.from_user.id, strTask)
+
+@bot.message_handler(content_types=['document'])
+def handle_text(message):
+    bot.send_chat_action(message.from_user.id, 'typing')
+    bot.send_message(message.from_user.id, 'DOCUMENT')
+    # import requests
+    # file_info = tb.get_file(file_id)
+    #
+    # file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(API_TOKEN, file_info.file_path))
+
 
 
 @bot.message_handler(content_types=['text'])

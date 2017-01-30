@@ -64,42 +64,49 @@
 # $resultRequest = $curlObject->StartCurlRequest();
 
 
-import json
-import requests
-
-url = 'http://212.1.103.131/BaseCRM/hs/WebModern/GetUserInfo?session=87a95fsfc-063d-482c-8687-6c95733eec9d'
-headers = {'Content-Type': "application/json"}
-data = {"INN": "2949105119"}
-jdata = json.dumps(data).encode('utf8')
-# res = requests.post(url, json=jdata, headers=headers)
-res = requests.post(url, auth=('Администратор'.encode('utf-8'), ''), data=jdata, headers=headers)
-# res = requests.post(url, json=jdata, headers=headers, auth=HTTPDigestAuth("Администратор", ""))
-print(res.status_code)
-# print(type(res))
-s = json.loads(res.text)
-print(s)
-print(type(s))
+# import json
+# import requests
+#
+# url = 'http://212.1.103.131/BaseCRM/hs/WebModern/GetUserInfo?session=87a95fsfc-063d-482c-8687-6c95733eec9d'
+# headers = {'Content-Type': "application/json"}
+# data = {"INN": "2949105119"}
+# jdata = json.dumps(data).encode('utf8')
+# # res = requests.post(url, json=jdata, headers=headers)
+# res = requests.post(url, auth=('Администратор'.encode('utf-8'), ''), data=jdata, headers=headers)
+# # res = requests.post(url, json=jdata, headers=headers, auth=HTTPDigestAuth("Администратор", ""))
+# print(res.status_code)
+# # print(type(res))
+# s = json.loads(res.text)
+# print(s)
+# print(type(s))
 
 # -*- coding: utf-8 -*-
 
-# import _mysql
-# try:
-#     db = _mysql.connect(host="localhost",user="root",
-#                   passwd="q100689",db="ModernExpo")
-# except BaseException as e:
-#     print(str(e))
-#     exit()
-#     # print(str(e))
-#
-# db.set_character_set("utf8")
-# inn = 2949105119
-# db.query("SELECT * FROM UserInfo")
-# r=db.use_result()
-# # print(db.Error)
-# listR = r.fetch_row(0)
-# for s in listR:
-#     print(s)
-#     # print(s[1].decode('utf-8'))\
+import _mysql
+try:
+    db = _mysql.connect(host="localhost",user="root",
+                  passwd="q100689",db="ModernExpo")
+except BaseException as e:
+    print(str(e))
+    exit()
+    # print(str(e))
+
+db.set_character_set("utf8")
+inn = 2949105119
+db.query("SELECT * FROM UserInfo")
+r=db.use_result()
+# print(db.Error)
+listR = r.fetch_row(0)
+print(type(listR))
+for s in listR:
+    # print(s[1].decode('utf-8'))
+    if s[3].decode('utf-8') == 'None':
+        print(True)
+    else:
+        print(False)
+    print(s)
+    # print(type(s))
+    # print(s[1].decode('utf-8'))\
 
 
 # def userRegistered(userID):

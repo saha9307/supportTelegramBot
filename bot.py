@@ -31,7 +31,6 @@ def userVerification(userID):
         return False
     return True
 
-
 def registrNewUser(userID):
     bot.send_chat_action(userID, 'typing')
     userRegistration[userID] = constants.REGISTRATION_NEW_USER
@@ -73,7 +72,10 @@ def get_user_inn(message):
         userRegistration[message.chat.id] = False
         return
     userInfo = getUserInfoFrom1C(userINN, message.chat.id)
-    if userInfo == False:
+    if userInfo == False or userInfo == '404':
+        bot.send_message(message.chat.id, 'Користувач із вказаним податковим номером не знайдений в базі Modern-Expo')
+        bot.send_message(message.chat.id, 'Для використання бота, пройдіть реєстрацію')
+        bot.send_message(message.chat.id, 'Що б зареєструватись, натисніть /registration')
         userRegistration[message.chat.id] = False
         return
 
@@ -89,7 +91,7 @@ def get_user_inn(message):
 
     bot.send_message(message.from_user.id, 'Вітаємо з успішною реєстрацією')
     markup = telebot.types.ReplyKeyboardMarkup()
-    markup.row('/new_task', '/task_info')
+    markup.row('/new_task', '/task_info', '/task_list')
     markup.row('/help')
     bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
     userRegistration[message.chat.id] = False
@@ -111,7 +113,7 @@ def handle_text(message):
         bot.send_message(165430624, userRegistered)
     else:
         markup = telebot.types.ReplyKeyboardMarkup()
-        markup.row('/new_task', '/task_info')
+        markup.row('/new_task', '/task_info', '/task_list')
         markup.row('/help')
         bot.send_message(message.from_user.id, "Виберіть необхідну функцію:", reply_markup=markup)
 
@@ -157,7 +159,6 @@ def get_task_info(message):
     except Exception as err:
         bot.send_message(message.from_user.id, constants.strTaskNotFound);
     usersRequestTaskInfo[message.chat.id] = False
-
 # End Set Task Info=================================================
 
 
@@ -173,21 +174,48 @@ def handle_text(message):
 @bot.message_handler(func=lambda message: usersCreateTask.get(message.chat.id) == constants.USER_SET_NEW_TASK)
 def create_new_task(message):
     bot.send_chat_action(message.from_user.id, 'typing')
+
+    userInfo = db_connect.getUserInfo(message.from_user.id)
+    if not userInfo:
+        return
+
     # Code for create new task in Jira System
-    summary = message.text + '\nUser: ' + message.from_user.first_name + ' ' + message.from_user.last_name
+    summary = message.text + '\nКористувач Telegram: ' + message.from_user.first_name + ' ' + message.from_user.last_name
+    summary += '\nКлієнт: ' + userInfo[1].decode('utf-8')
+    if userInfo[2].decode('utf-8') != 'None' and userInfo[2].decode('utf-8') != '':
+        summary += '\nВнутр.Тел.: ' + userInfo[2].decode('utf-8')
+
+    if userInfo[3].decode('utf-8') != 'None' and userInfo[3].decode('utf-8') != '':
+        summary += '\nМоб.Тел.: ' + userInfo[3].decode('utf-8')
+
+    if userInfo[4].decode('utf-8') != 'None' and userInfo[4].decode('utf-8') != '':
+        summary += '\nEmail: ' + userInfo[4].decode('utf-8')
+
     new_issue = jira.create_issue(project='SUP', summary=message.text,
                                   description=summary, issuetype={'name': 'Bug'}, assignee={'name':'JiraSupport'})
-    bot.send_message(message.from_user.id, new_issue.key)
+    bot.send_message(message.from_user.id, 'Номер вашого звернення: ' + new_issue.key)
     usersCreateTask[message.chat.id] = False
+    db_connect.writeTaskNumber(message.chat.id, new_issue.key)
 # End Create new task===============================================
 
 
+@bot.message_handler(commands=['task_list'])
+def get_task_list(message):
+    bot.send_chat_action(message.from_user.id, 'typing')
+    taskList = db_connect.getUserTasks(message.from_user.id)
+
+    if taskList == False:
+        return
+    strTask = 'Список Ваших задач:'
+    for task in taskList:
+        strTask += '\n' + task[1].decode('utf-8')
+
+    bot.send_message(message.from_user.id, strTask)
 
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, message.text+' '+str(type(message.from_user.id)))
-
 
 bot.polling(none_stop=True, interval=0)

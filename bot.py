@@ -4,6 +4,7 @@ import constants
 import db_connect
 import json
 import requests
+import os
 
 
 
@@ -14,6 +15,9 @@ bot = telebot.TeleBot(constants.telegramBotToken)
 usersRequestTaskInfo = {}
 usersCreateTask = {}
 descriptionNewTask = {}
+
+usersLastTask = {}
+userSetFile = {}
 
 userRegistration = {}
 
@@ -61,11 +65,13 @@ def getUserInfoFrom1C(userINN, userID):
 
 @bot.message_handler(commands=['registration'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     registrNewUser(message.from_user.id)
 
 
 @bot.message_handler(func=lambda message: userRegistration.get(message.chat.id) == constants.REGISTRATION_NEW_USER)
 def get_user_inn(message):
+    userSetFile[message.chat.id] = False
     userINN = message.text.upper().replace(' ', '')
     if userINN == '':
         bot.send_message(message.from_user.id, 'ІНН не можу бути пустим. Спробуйте знову.')
@@ -100,6 +106,7 @@ def get_user_inn(message):
 
 @bot.message_handler(commands=['start'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, constants.strHello)
 
@@ -119,6 +126,7 @@ def handle_text(message):
 
 @bot.message_handler(commands=['help'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, constants.strHelp)
 
@@ -127,6 +135,7 @@ def handle_text(message):
 # Start
 @bot.message_handler(commands=['task_info'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     if not userVerification(message.from_user.id):
         return
     bot.send_chat_action(message.from_user.id, 'typing')
@@ -165,6 +174,7 @@ def get_task_info(message):
 # Start Create new task=============================================
 @bot.message_handler(commands=['new_task'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     if not userVerification(message.from_user.id):
         return
     bot.send_chat_action(message.from_user.id, 'typing')
@@ -196,11 +206,14 @@ def create_new_task(message):
     bot.send_message(message.from_user.id, 'Номер вашого звернення: ' + new_issue.key)
     usersCreateTask[message.chat.id] = False
     db_connect.writeTaskNumber(message.chat.id, new_issue.key)
+    usersLastTask[message.chat.id] = str(new_issue.key)
+    userSetFile[message.chat.id] = constants.SET_FILE_USER
 # End Create new task===============================================
 
 
 @bot.message_handler(commands=['task_list'])
 def get_task_list(message):
+    userSetFile[message.chat.id] = False
     bot.send_chat_action(message.from_user.id, 'typing')
     taskList = db_connect.getUserTasks(message.from_user.id)
 
@@ -212,19 +225,36 @@ def get_task_list(message):
 
     bot.send_message(message.from_user.id, strTask)
 
-@bot.message_handler(content_types=['document'])
+@bot.message_handler(content_types=['document'], func=lambda message: userSetFile.get(message.chat.id) == constants.SET_FILE_USER)
 def handle_text(message):
     bot.send_chat_action(message.from_user.id, 'typing')
-    bot.send_message(message.from_user.id, 'DOCUMENT')
-    # import requests
-    # file_info = tb.get_file(file_id)
-    #
-    # file = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(API_TOKEN, file_info.file_path))
+
+    taskNumber = usersLastTask[message.chat.id]
+
+    if taskNumber == '':
+        return
+
+    file_info = bot.get_file(message.document.file_id)
+
+    issue = jira.issue(id=taskNumber)
+
+    with open(file_info.file_path, "wb") as file:
+        response = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(constants.telegramBotToken, file_info.file_path))
+        file.write(response.content)
+
+    jira.add_attachment(issue=issue, attachment=file_info.file_path)
+    userSetFile[message.chat.id] = False
+    bot.send_message(message.from_user.id, 'Файл прикліплений до задачі ' + str(taskNumber))
+    try:
+        os.remove(file_info.file_path)
+    except:
+        pass
 
 
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
+    userSetFile[message.chat.id] = False
     bot.send_chat_action(message.from_user.id, 'typing')
     bot.send_message(message.from_user.id, message.text+' '+str(type(message.from_user.id)))
 

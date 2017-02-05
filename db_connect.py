@@ -81,7 +81,7 @@ def getUserTasks(userID):
 
     db.set_character_set("utf8")
     try:
-        db.query("SELECT userinfo.user_name, userstasks.task_number FROM userinfo LEFT JOIN userstasks ON userinfo.id = userstasks.user_id WHERE userinfo.telegram_user_id = "+str(userID)+";")
+        db.query("SELECT UserInfo.user_name, UsersTasks.task_number FROM UserInfo LEFT JOIN UsersTasks ON UserInfo.id = UsersTasks.user_id WHERE UserInfo.telegram_user_id = "+str(userID)+";")
     except:
         return False
     resultQuery = db.use_result()
@@ -123,4 +123,4 @@ def foundUserWithINN(userINN, userID):
     db.close()
     return True
 
-
+getUserTasks('165430624')

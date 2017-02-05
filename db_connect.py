@@ -18,6 +18,12 @@ def userRegistered(userID):
         return False
 
 def writeNewUser(userInfo):
+
+    # проверка наличия пользователя в базе с таким ИИН, если есть то записать ему telegram_user_id
+
+    if foundUserWithINN(userInfo['tax_number'], userInfo['telegram_user_id']) == True:
+        return True
+
     try:
         db = _mysql.connect(host="localhost", user="root", passwd="q100689", db="ModernExpo")
     except BaseException as error:
@@ -88,3 +94,33 @@ def getUserTasks(userID):
     # pass
 
 # getUserTasks('165430624')
+
+
+def foundUserWithINN(userINN, userID):
+    try:
+        db = _mysql.connect(host="localhost", user="root", passwd="q100689", db="ModernExpo")
+    except BaseException as error:
+        return str(error)
+
+    db.set_character_set("utf8")
+    try:
+        db.query("SELECT * FROM UserInfo WHERE tax_number = " + str(userINN))
+    except BaseException as error:
+        return str(error)
+
+    resultQuery = db.use_result()
+    userInfo = resultQuery.fetch_row(0)
+
+    if len(userInfo) == 0:
+        db.close()
+        return False
+
+    id = userInfo[0][0]
+    try:
+        db.query("UPDATE UserInfo SET telegram_user_id = "+str(userID)+" WHERE UserInfo.id = "+str(id))
+    except BaseException as error:
+        return str(error)
+    db.close()
+    return True
+
+

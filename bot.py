@@ -221,6 +221,8 @@ def get_task_list(message):
         return
     strTask = 'Список Ваших задач:'
     for task in taskList:
+        if task[1] == None:
+            continue
         strTask += '\n' + task[1].decode('utf-8')
 
     bot.send_message(message.from_user.id, strTask)

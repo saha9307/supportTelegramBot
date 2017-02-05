@@ -1,4 +1,4 @@
-telegramBotToken = '317991618:AAFstbCdzoyMu6HAjuoke8fEHl8er4JOnac'
+telegramBotToken = '288484020:AAECkxB9PSheMmj2mRO-zsCovQDdxY2Y4z8' # ITSupportModernExpo_bot
 jiraURL = 'http://jira.modern-expo.com'
 jiraUser = 'JiraSupport'
 jiraPassword = 'q1w2e3r4_5'
